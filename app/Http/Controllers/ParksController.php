@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class ParksController extends Controller
 {
@@ -31,7 +32,7 @@ class ParksController extends Controller
         $this->validate($request, [
            'plat_nomor' => 'required',
            'warna' => 'required',
-           'tipe' => 'required',            
+           'tipe' => ['required', Rule::in(['SUV', 'MPV'])]            
         ]);
 
         if (!file_exists(resource_path().'/parking-lot.json')) {
@@ -43,7 +44,13 @@ class ParksController extends Controller
         $length = count($parking_lot);
 
         foreach ($parking_lot as $key => $value) {
-            if ($value['plat_nomor'] === "") {
+            if ($value['plat_nomor'] == $request->input('plat_nomor')) {
+                return response()->json(['message' => 'plat nomor sudah terdaftar'], 200);
+            }
+        }
+
+        foreach ($parking_lot as $key => $value) {
+            if ($value['plat_nomor'] == "") {
                 $parking_lot[$key]['plat_nomor'] = $request->input('plat_nomor');
                 $parking_lot[$key]['warna'] = $request->input('warna');
                 $parking_lot[$key]['tipe'] = $request->input('tipe');
@@ -63,7 +70,7 @@ class ParksController extends Controller
         $new_parking_lot = [];
 
         foreach ($parking_lot as $key => $value) {
-            if ($value['plat_nomor'] === $request->input('plat_nomor')) {
+            if ($value['plat_nomor'] == $request->input('plat_nomor')) {
                 $new_parking_lot['parking_lot'] = $parking_lot[$key]['parking_lot'];
                 $new_parking_lot['plat_nomor'] = $parking_lot[$key]['plat_nomor']; 
                 $new_parking_lot['tanggal_masuk'] = $parking_lot[$key]['tanggal_masuk'];
@@ -92,7 +99,7 @@ class ParksController extends Controller
         $jumlah_bayar = 0;        
 
         foreach ($parking_lot as $key => $value) {
-            if ($value['plat_nomor'] === $request->input('plat_nomor')) {
+            if ($value['plat_nomor'] == $request->input('plat_nomor')) {
                 $out_parking_lot['plat_nomor'] = $parking_lot[$key]['plat_nomor'];
                 $out_parking_lot['tanggal_masuk'] = $parking_lot[$key]['tanggal_masuk']; 
                 $out_parking_lot['tanggal_keluar'] = $tanggal_keluar;
@@ -105,14 +112,14 @@ class ParksController extends Controller
 
                 $hourdiff = ceil((strtotime($tanggal_keluar) - strtotime($parking_lot[$key]['tanggal_masuk']))/3600);
                 
-                if ($hourdiff === 0 OR $hourdiff === 1) {
+                if ($hourdiff == 0 OR $hourdiff == 1) {
                     $out_parking_lot['jumlah_bayar'] = $biaya_parkir_jam_pertama;
                 } else {
                     $jumlah_bayar = $biaya_parkir_jam_pertama + ($hourdiff * ($biaya_parkir_jam_pertama * 20/100));                    
                     $out_parking_lot['jumlah_bayar'] = $jumlah_bayar;                    
                 }                             
 
-                $parking_lot[$key]['plat_nomor'] == "";
+                $parking_lot[$key]['plat_nomor'] = "";
                 unset($parking_lot[$key]['warna']);
                 unset($parking_lot[$key]['tipe']);
                 unset($parking_lot[$key]['tanggal_masuk']);
@@ -120,7 +127,7 @@ class ParksController extends Controller
             }            
         }
 
-        if (count($out_parking_lot) === 0) {
+        if (count($out_parking_lot) == 0) {
             return response()->json(['message' => 'plat nomor not found'], 200);        
         }   
 
@@ -144,12 +151,12 @@ class ParksController extends Controller
                 continue;
             }
 
-            if ($value['warna'] === $warna) {
+            if ($value['warna'] == $warna) {
                 $report_parking_lot['plat_nomor'][] = $parking_lot[$key]['plat_nomor'];              
             }   
         }
 
-        if (count($report_parking_lot) === 0) {
+        if (count($report_parking_lot) == 0) {
             return response()->json(['message' => 'no one '.$warna.' car'], 200);                  
         }
 
@@ -170,12 +177,12 @@ class ParksController extends Controller
                 continue;
             }
 
-            if ($value['tipe'] === $tipe) {
+            if ($value['tipe'] == $tipe) {
                 $report_parking_lot['plat_nomor'][] = $parking_lot[$key]['plat_nomor'];              
             }   
         }
 
-        if (count($report_parking_lot) === 0) {
+        if (count($report_parking_lot) == 0) {
             return response()->json(['message' => 'no one '.$tipe.' car'], 200);                  
         }
 
