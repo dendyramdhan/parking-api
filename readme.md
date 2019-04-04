@@ -4,16 +4,36 @@ This is a parking-lot REST API built on top of Lumen 5.8
 
 ## Installation & Run
 
-1. First, clone the repo
-   `$ git clone https://github.com/dendyramdhan/parking-api.git`
-2. create .env file
-   `cp .env.example .env`
-3. Edit .env file
-   `APP_debug=false`
-4. Then install dependencies
-   `composer install`
-5. Serving API
-   `php -S localhost:8000 -t public`
+##### First, clone the repo
+
+```bash
+$ git clone https://github.com/dendyramdhan/parking-api.git
+$ cd parking-api
+```
+
+##### Create .env file
+
+```bash
+$ cp .env.example .env
+```
+
+##### Edit .env file
+
+```env
+APP_debug=false
+```
+
+##### Then install dependencies
+
+```bash
+$ composer install
+```
+
+##### Serving API
+
+```bash
+$ php -S localhost:8000 -t public
+```
 
 The API will be running on `localhost:8000`.
 
